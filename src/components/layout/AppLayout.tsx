@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { RadioProvider } from "@/contexts/RadioContext";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { useState } from "react";
+import { Github } from "lucide-react";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -30,6 +31,17 @@ export function AppLayout({ children }: AppLayoutProps) {
               </div>
             </SidebarProvider>
           </div>
+          <footer className="p-4 text-center text-sm text-muted-foreground bg-background border-t">
+            <a 
+              href="https://github.com/sirswaghorse" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="flex items-center justify-center hover:text-foreground transition-colors"
+            >
+              <Github className="mr-2 h-4 w-4" />
+              Developed by Jonah the Goodra
+            </a>
+          </footer>
         </div>
       </RadioProvider>
     </ThemeProvider>
