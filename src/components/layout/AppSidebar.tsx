@@ -23,6 +23,9 @@ import {
   Music,
   Radio,
   Settings,
+  Link as LinkIcon,
+  Headphones,
+  Rss,
 } from "lucide-react";
 
 export function AppSidebar() {
@@ -114,6 +117,50 @@ export function AppSidebar() {
                     <Settings />
                     <span>Settings</span>
                   </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Quick Links</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <a href="#" target="_blank" rel="noopener noreferrer" onClick={(e) => {
+                    e.preventDefault();
+                    // URL will come from settings in a real implementation
+                    window.open('https://station.example.com/listen', '_blank');
+                  }}>
+                    <Headphones />
+                    <span>Listen Live</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <a href="#" target="_blank" rel="noopener noreferrer" onClick={(e) => {
+                    e.preventDefault();
+                    // URL will come from settings in a real implementation
+                    window.open('https://station.example.com/listen.m3u', '_blank');
+                  }}>
+                    <LinkIcon />
+                    <span>Stream URL</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <a href="#" target="_blank" rel="noopener noreferrer" onClick={(e) => {
+                    e.preventDefault();
+                    // URL will come from settings in a real implementation
+                    window.open('https://station.example.com/podcast', '_blank');
+                  }}>
+                    <Rss />
+                    <span>Podcast Feed</span>
+                  </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

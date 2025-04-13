@@ -13,6 +13,7 @@ import AutoDJPage from "./pages/AutoDJPage";
 import AppearancePage from "./pages/AppearancePage";
 import SongsPage from "./pages/SongsPage";
 import SettingsPage from "./pages/SettingsPage";
+import QuickLinksPage from "./pages/QuickLinksPage";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,11 @@ const App = () => (
           <Route path="/settings" element={
             <AppLayout>
               <SettingsPage />
+            </AppLayout>
+          } />
+          <Route path="/quick-links" element={
+            <AppLayout>
+              <QuickLinksPage />
             </AppLayout>
           } />
           <Route path="*" element={<NotFound />} />
