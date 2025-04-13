@@ -12,6 +12,7 @@ import DJsPage from "./pages/DJsPage";
 import AutoDJPage from "./pages/AutoDJPage";
 import AppearancePage from "./pages/AppearancePage";
 import SongsPage from "./pages/SongsPage";
+import SettingsPage from "./pages/SettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,11 @@ const App = () => (
           <Route path="/songs" element={
             <AppLayout>
               <SongsPage />
+            </AppLayout>
+          } />
+          <Route path="/settings" element={
+            <AppLayout>
+              <SettingsPage />
             </AppLayout>
           } />
           <Route path="*" element={<NotFound />} />

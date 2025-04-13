@@ -22,6 +22,7 @@ import {
   Palette,
   Music,
   Radio,
+  Settings,
 } from "lucide-react";
 
 export function AppSidebar() {
@@ -59,7 +60,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Station Manager</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem active={isActive("/")}>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/">
                     <Home />
@@ -67,7 +68,7 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem active={isActive("/widgets")}>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/widgets">
                     <Layout />
@@ -75,7 +76,7 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem active={isActive("/djs")}>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/djs">
                     <Users />
@@ -83,7 +84,7 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem active={isActive("/auto-dj")}>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/auto-dj">
                     <PlaySquare />
@@ -91,7 +92,7 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem active={isActive("/songs")}>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/songs">
                     <Music />
@@ -99,11 +100,19 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem active={isActive("/appearance")}>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/appearance">
                     <Palette />
                     <span>Appearance</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/settings">
+                    <Settings />
+                    <span>Settings</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
