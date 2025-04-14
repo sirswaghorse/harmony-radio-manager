@@ -6,6 +6,7 @@ import { Menu, Radio } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDuration } from "@/lib/utils";
+import { useSidebar } from "@/components/ui/sidebar";
 
 interface AppHeaderProps {
   onMenuToggle: () => void;
@@ -14,12 +15,18 @@ interface AppHeaderProps {
 export function AppHeader({ onMenuToggle }: AppHeaderProps) {
   const { stationLogo } = useTheme();
   const { stats } = useRadio();
+  const { setOpenMobile } = useSidebar();
+
+  const handleMenuToggle = () => {
+    setOpenMobile(true);  // Explicitly open the mobile sidebar
+    onMenuToggle();       // Call the original toggle function as well
+  };
 
   return (
     <header className="border-b bg-card">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={onMenuToggle}>
+          <Button variant="ghost" size="icon" onClick={handleMenuToggle}>
             <Menu className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-2">

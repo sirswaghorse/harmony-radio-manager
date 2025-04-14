@@ -14,13 +14,18 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  const handleMenuToggle = () => {
+    setSidebarOpen(!sidebarOpen);
+    // Note: Mobile sidebar opening is now handled in the AppHeader component
+  };
+
   return (
     <ThemeProvider>
       <RadioProvider>
         <div className="min-h-screen flex flex-col">
-          <AppHeader onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
-          <div className="flex flex-1 overflow-hidden">
-            <SidebarProvider defaultOpen={sidebarOpen} open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          <SidebarProvider defaultOpen={sidebarOpen} open={sidebarOpen} onOpenChange={setSidebarOpen}>
+            <AppHeader onMenuToggle={handleMenuToggle} />
+            <div className="flex flex-1 overflow-hidden">
               <div className="flex w-full">
                 <AppSidebar />
                 <main className="flex-1 overflow-auto p-6">
@@ -29,8 +34,8 @@ export function AppLayout({ children }: AppLayoutProps) {
                   </div>
                 </main>
               </div>
-            </SidebarProvider>
-          </div>
+            </div>
+          </SidebarProvider>
           <footer className="p-4 text-center text-sm text-muted-foreground bg-background border-t">
             <a 
               href="https://github.com/sirswaghorse" 
