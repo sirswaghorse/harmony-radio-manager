@@ -1,9 +1,10 @@
 
 import React, { useState } from "react";
+import { AlertCircle } from "lucide-react";  // Change import to lucide-react
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertCircle, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle2, RefreshCw } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
