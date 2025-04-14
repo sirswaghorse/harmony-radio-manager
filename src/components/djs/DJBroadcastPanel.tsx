@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +10,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } fr
 import { useForm } from "react-hook-form";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Mic, MicOff, Radio, Headphones, Volume2, Info, Broadcast } from "lucide-react";
+import { Mic, MicOff, Radio, Headphones, Volume2, Info } from "lucide-react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -67,14 +66,12 @@ export function DJBroadcastPanel() {
     },
   });
 
-  // Request microphone access
   const requestMicAccess = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       setMicAccess(true);
       
-      // Get available microphones
       const devices = await navigator.mediaDevices.enumerateDevices();
       const mics = devices.filter(device => device.kind === 'audioinput');
       setAvailableMics(mics);
@@ -83,7 +80,6 @@ export function DJBroadcastPanel() {
         setSelectedMic(mics[0].deviceId);
       }
       
-      // Initialize audio context
       audioContextRef.current = new AudioContext();
       
       toast.success("Microphone access granted");
@@ -95,8 +91,6 @@ export function DJBroadcastPanel() {
   };
 
   const connectToServer = () => {
-    // In a real implementation, this would establish a connection to the Icecast server
-    // For demo purposes, we'll simulate connecting
     toast.loading("Connecting to server...");
     
     setTimeout(() => {
@@ -106,7 +100,6 @@ export function DJBroadcastPanel() {
   };
 
   const disconnectFromServer = () => {
-    // In a real implementation, this would close the connection to the Icecast server
     setConnected(false);
     setBroadcasting(false);
     toast.success("Disconnected from server");
@@ -117,13 +110,11 @@ export function DJBroadcastPanel() {
       connectToServer();
     }
     
-    // In a real implementation, this would start sending audio to the Icecast server
     setBroadcasting(true);
     toast.success("Broadcasting started");
   };
 
   const stopBroadcasting = () => {
-    // In a real implementation, this would stop sending audio to the Icecast server
     setBroadcasting(false);
     toast.success("Broadcasting stopped");
   };
@@ -131,11 +122,9 @@ export function DJBroadcastPanel() {
   const changeMicrophone = (deviceId: string) => {
     setSelectedMic(deviceId);
     
-    // In a real implementation, this would switch the audio input
     toast.success("Microphone changed");
   };
 
-  // Cleanup function
   useEffect(() => {
     return () => {
       if (streamRef.current) {
@@ -151,7 +140,7 @@ export function DJBroadcastPanel() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Broadcast className="h-5 w-5" /> DJ Broadcasting Panel
+          <Radio className="h-5 w-5" /> DJ Broadcasting Panel
         </CardTitle>
         <CardDescription>
           Broadcast directly to your station from your browser

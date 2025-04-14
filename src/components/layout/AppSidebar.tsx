@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -11,7 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { MoonIcon, SunIcon } from "lucide-react";
+import { MoonIcon, SunIcon, Radio } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -21,12 +20,10 @@ import {
   PlaySquare,
   Palette,
   Music,
-  Radio,
   Settings,
   Link as LinkIcon,
   Headphones,
   Rss,
-  Broadcast,
 } from "lucide-react";
 
 export function AppSidebar() {
@@ -91,7 +88,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/djs?tab=broadcast">
-                    <Broadcast />
+                    <Radio />
                     <span>Broadcast</span>
                   </Link>
                 </SidebarMenuButton>
