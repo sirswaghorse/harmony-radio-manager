@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useAuth } from "@/contexts/AuthContext";
@@ -64,7 +65,7 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("icecast");
   const [checkingForUpdates, setCheckingForUpdates] = useState(false);
   const [installing, setInstalling] = useState(false);
-  const { logout, setNewPassword } = useAuth();
+  const { logout, setNewPassword: updateAdminPassword } = useAuth();
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -226,7 +227,7 @@ export default function SettingsPage() {
       return;
     }
     
-    setNewPassword(newPassword);
+    updateAdminPassword(newPassword);
     setIsChangePasswordOpen(false);
     setNewPassword("");
     setConfirmPassword("");
