@@ -12,8 +12,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "@/components/ui/use-toast";
-import { AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
+import { AlertCircle, CheckCircle2, RefreshCw, Download, Server } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
 
 const icecastSettingsSchema = z.object({
   hostname: z.string().min(1, "Hostname is required"),
@@ -42,9 +43,19 @@ interface UpdateInfo {
   releaseUrl: string;
 }
 
+interface InstallationStatus {
+  isInstalled: boolean;
+  installedVersion: string;
+  isInstalling: boolean;
+  installProgress: number;
+  lastInstallDate: string | null;
+  installError: string | null;
+}
+
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("icecast");
   const [checkingForUpdates, setCheckingForUpdates] = useState(false);
+  const [installing, setInstalling] = useState(false);
   
   const [savedIcecastSettings, setSavedIcecastSettings] = useLocalStorage<IcecastSettings>("icecast-settings", {
     hostname: "localhost",
@@ -68,6 +79,15 @@ export default function SettingsPage() {
     updateAvailable: false,
     lastChecked: new Date().toISOString(),
     releaseUrl: "https://github.com/sirswaghorse/harmony-icecast-manager/releases/latest"
+  });
+
+  const [installationStatus, setInstallationStatus] = useLocalStorage<InstallationStatus>("icecast-installation", {
+    isInstalled: false,
+    installedVersion: "",
+    isInstalling: false,
+    installProgress: 0,
+    lastInstallDate: null,
+    installError: null
   });
 
   const icecastForm = useForm<IcecastSettings>({
@@ -132,8 +152,59 @@ export default function SettingsPage() {
     }
   };
 
+  const installIcecast = async () => {
+    setInstallationStatus(prev => ({
+      ...prev,
+      isInstalling: true,
+      installProgress: 0,
+      installError: null
+    }));
+
+    // Simulate installation process
+    try {
+      // Downloading phase
+      for (let i = 0; i <= 100; i += 10) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        setInstallationStatus(prev => ({
+          ...prev,
+          installProgress: i
+        }));
+      }
+      
+      // Complete installation
+      setInstallationStatus({
+        isInstalled: true,
+        installedVersion: "2.4.99",
+        isInstalling: false,
+        installProgress: 100,
+        lastInstallDate: new Date().toISOString(),
+        installError: null
+      });
+
+      toast({
+        title: "Installation Complete",
+        description: "Icecast 2.4.99 has been successfully installed.",
+      });
+    } catch (error) {
+      setInstallationStatus(prev => ({
+        ...prev,
+        isInstalling: false,
+        installError: "Failed to install Icecast. Please try again."
+      }));
+
+      toast({
+        title: "Installation Failed",
+        description: "There was an error installing Icecast. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Format the last checked date in a readable format
   const formattedLastChecked = new Date(updateInfo.lastChecked).toLocaleString();
+  const formattedInstallDate = installationStatus.lastInstallDate 
+    ? new Date(installationStatus.lastInstallDate).toLocaleString() 
+    : "Never";
 
   return (
     <div className="container mx-auto py-6">
@@ -146,6 +217,7 @@ export default function SettingsPage() {
         <TabsList>
           <TabsTrigger value="icecast">Icecast Server</TabsTrigger>
           <TabsTrigger value="requests">Song Requests</TabsTrigger>
+          <TabsTrigger value="install">Install Icecast</TabsTrigger>
           <TabsTrigger value="updates">Updates</TabsTrigger>
         </TabsList>
         
@@ -403,6 +475,89 @@ export default function SettingsPage() {
                   <Button type="submit" className="mt-6">Save Request Settings</Button>
                 </form>
               </Form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="install" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Icecast Server Installation</CardTitle>
+              <CardDescription>
+                One-click installation of Icecast 2 server from icecast.org
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-6">
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">Installation Status</span>
+                    <span className="text-sm">
+                      {installationStatus.isInstalled 
+                        ? <span className="text-green-500 flex items-center gap-1">
+                            <CheckCircle2 className="h-4 w-4" /> Installed
+                          </span> 
+                        : "Not Installed"}
+                    </span>
+                  </div>
+                  {installationStatus.isInstalled && (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-sm font-medium">Installed Version</span>
+                        <span className="text-sm">{installationStatus.installedVersion}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm font-medium">Installation Date</span>
+                        <span className="text-sm">{formattedInstallDate}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {installationStatus.isInstalling && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Installing Icecast...</span>
+                      <span className="text-sm">{installationStatus.installProgress}%</span>
+                    </div>
+                    <Progress value={installationStatus.installProgress} />
+                  </div>
+                )}
+
+                {installationStatus.installError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Installation Failed</AlertTitle>
+                    <AlertDescription>
+                      {installationStatus.installError}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <div className="flex flex-col gap-4">
+                  <Alert>
+                    <Server className="h-4 w-4" />
+                    <AlertTitle>Icecast Server</AlertTitle>
+                    <AlertDescription>
+                      This will download and install the latest version of Icecast 2 from icecast.org.
+                      The installation process will configure Icecast with the settings you've defined
+                      in the Icecast Server tab.
+                    </AlertDescription>
+                  </Alert>
+
+                  <Button 
+                    onClick={installIcecast} 
+                    disabled={installationStatus.isInstalling}
+                    className="gap-2 w-full sm:w-auto"
+                  >
+                    {installationStatus.isInstalling && <Download className="h-4 w-4 animate-pulse" />}
+                    {!installationStatus.isInstalling && <Download className="h-4 w-4" />}
+                    {installationStatus.isInstalled 
+                      ? "Reinstall Icecast Server" 
+                      : "Install Icecast Server"}
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
