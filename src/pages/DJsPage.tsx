@@ -10,6 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Edit, Plus, Radio, Trash2, UserCheck } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DJConnectionSettings } from "@/components/djs/DJConnectionSettings";
+import { DJConnectionInstructions } from "@/components/djs/DJConnectionInstructions";
 
 interface DJ {
   id: string;
@@ -41,6 +44,7 @@ const DJsPage = () => {
     dj: null,
   });
   const [formData, setFormData] = useState<DJ>(defaultDJ);
+  const [activeTab, setActiveTab] = useState<string>("dj-list");
 
   const openAddDialog = () => {
     setFormData(defaultDJ);
@@ -82,13 +86,11 @@ const DJsPage = () => {
     let newDJs: DJ[];
 
     if (dialogData.mode === "add") {
-      // Generate a simple ID for demo purposes
       const newDJ = {
         ...formData,
         id: `dj${Date.now()}`,
       };
       
-      // If the new DJ is set to on air, set all others to off air
       if (newDJ.isOnAir) {
         newDJs = djs.map(dj => ({ ...dj, isOnAir: false }));
       } else {
@@ -98,14 +100,12 @@ const DJsPage = () => {
       newDJs.push(newDJ);
       toast.success(`DJ ${newDJ.name} added successfully`);
     } else {
-      // If this DJ is now set to on air, set all others to off air
       if (formData.isOnAir) {
         newDJs = djs.map(dj => ({
           ...dj,
           isOnAir: dj.id === formData.id,
         }));
       } else {
-        // Otherwise just update this DJ
         newDJs = djs.map(dj => (dj.id === formData.id ? formData : dj));
       }
       toast.success(`DJ ${formData.name} updated successfully`);
@@ -145,66 +145,84 @@ const DJsPage = () => {
         </Button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {djs.map(dj => (
-          <Card key={dj.id} className="overflow-hidden">
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{dj.name}</CardTitle>
-                {dj.isOnAir && (
-                  <Badge className="bg-harmony-primary">
-                    <Radio size={14} className="mr-1" /> On Air
-                  </Badge>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                  {dj.avatar ? (
-                    <img src={dj.avatar} alt={dj.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <UserCheck size={24} className="text-muted-foreground" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  {dj.bio ? (
-                    <p className="text-sm text-muted-foreground line-clamp-3">{dj.bio}</p>
-                  ) : (
-                    <p className="text-sm text-muted-foreground italic">No bio available</p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="border-t bg-muted/50 px-6 py-3">
-              <div className="flex justify-between w-full">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                  onClick={() => handleDelete(dj.id)}
-                >
-                  <Trash2 size={16} />
-                </Button>
-                <div className="space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => openEditDialog(dj)}>
-                    <Edit size={14} className="mr-1" /> Edit
-                  </Button>
-                  <Button 
-                    variant={dj.isOnAir ? "secondary" : "default"} 
-                    size="sm" 
-                    onClick={() => setDJOnAir(dj.id)}
-                    disabled={dj.isOnAir}
-                  >
-                    <Radio size={14} className="mr-1" /> 
-                    {dj.isOnAir ? "On Air" : "Set On Air"}
-                  </Button>
-                </div>
-              </div>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="dj-list">DJ List</TabsTrigger>
+          <TabsTrigger value="connection-settings">Connection Settings</TabsTrigger>
+          <TabsTrigger value="instructions">Connection Instructions</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="dj-list" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {djs.map(dj => (
+              <Card key={dj.id} className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg">{dj.name}</CardTitle>
+                    {dj.isOnAir && (
+                      <Badge className="bg-harmony-primary">
+                        <Radio size={14} className="mr-1" /> On Air
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                      {dj.avatar ? (
+                        <img src={dj.avatar} alt={dj.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <UserCheck size={24} className="text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      {dj.bio ? (
+                        <p className="text-sm text-muted-foreground line-clamp-3">{dj.bio}</p>
+                      ) : (
+                        <p className="text-sm text-muted-foreground italic">No bio available</p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="border-t bg-muted/50 px-6 py-3">
+                  <div className="flex justify-between w-full">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => handleDelete(dj.id)}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                    <div className="space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => openEditDialog(dj)}>
+                        <Edit size={14} className="mr-1" /> Edit
+                      </Button>
+                      <Button 
+                        variant={dj.isOnAir ? "secondary" : "default"} 
+                        size="sm" 
+                        onClick={() => setDJOnAir(dj.id)}
+                        disabled={dj.isOnAir}
+                      >
+                        <Radio size={14} className="mr-1" /> 
+                        {dj.isOnAir ? "On Air" : "Set On Air"}
+                      </Button>
+                    </div>
+                  </div>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="connection-settings">
+          <DJConnectionSettings />
+        </TabsContent>
+        
+        <TabsContent value="instructions">
+          <DJConnectionInstructions />
+        </TabsContent>
+      </Tabs>
       
       {/* Add/Edit DJ Dialog */}
       <Dialog open={dialogData.isOpen} onOpenChange={isOpen => !isOpen && closeDialog()}>
