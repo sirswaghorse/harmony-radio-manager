@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DJConnectionSettings } from "@/components/djs/DJConnectionSettings";
 import { DJConnectionInstructions } from "@/components/djs/DJConnectionInstructions";
 import { DJBroadcastPanel } from "@/components/djs/DJBroadcastPanel";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface DJ {
   id: string;
@@ -47,6 +47,7 @@ const DJsPage = () => {
   });
   const [formData, setFormData] = useState<DJ>(defaultDJ);
   const location = useLocation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>("dj-list");
 
   useEffect(() => {
@@ -57,6 +58,11 @@ const DJsPage = () => {
       setActiveTab(tab);
     }
   }, [location]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    navigate(`/djs?tab=${value}`, { replace: true });
+  };
 
   const openAddDialog = () => {
     setFormData(defaultDJ);
@@ -157,7 +163,7 @@ const DJsPage = () => {
         </Button>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
         <TabsList>
           <TabsTrigger value="dj-list">DJ List</TabsTrigger>
           <TabsTrigger value="connection-settings">Connection Settings</TabsTrigger>
