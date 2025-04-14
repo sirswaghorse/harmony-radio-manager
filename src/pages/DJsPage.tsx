@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRadio } from "@/contexts/RadioContext";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ import { Edit, Plus, Radio, Trash2, UserCheck } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DJConnectionSettings } from "@/components/djs/DJConnectionSettings";
 import { DJConnectionInstructions } from "@/components/djs/DJConnectionInstructions";
+import { DJBroadcastPanel } from "@/components/djs/DJBroadcastPanel";
+import { useLocation } from "react-router-dom";
 
 interface DJ {
   id: string;
@@ -44,7 +46,17 @@ const DJsPage = () => {
     dj: null,
   });
   const [formData, setFormData] = useState<DJ>(defaultDJ);
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<string>("dj-list");
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tab = searchParams.get("tab");
+    
+    if (tab && ["dj-list", "connection-settings", "instructions", "broadcast"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [location]);
 
   const openAddDialog = () => {
     setFormData(defaultDJ);
@@ -150,6 +162,7 @@ const DJsPage = () => {
           <TabsTrigger value="dj-list">DJ List</TabsTrigger>
           <TabsTrigger value="connection-settings">Connection Settings</TabsTrigger>
           <TabsTrigger value="instructions">Connection Instructions</TabsTrigger>
+          <TabsTrigger value="broadcast">Broadcast Panel</TabsTrigger>
         </TabsList>
         
         <TabsContent value="dj-list" className="space-y-4">
@@ -221,6 +234,10 @@ const DJsPage = () => {
         
         <TabsContent value="instructions">
           <DJConnectionInstructions />
+        </TabsContent>
+        
+        <TabsContent value="broadcast">
+          <DJBroadcastPanel />
         </TabsContent>
       </Tabs>
       

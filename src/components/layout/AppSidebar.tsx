@@ -26,6 +26,7 @@ import {
   Link as LinkIcon,
   Headphones,
   Rss,
+  Broadcast,
 } from "lucide-react";
 
 export function AppSidebar() {
@@ -84,6 +85,14 @@ export function AppSidebar() {
                   <Link to="/djs">
                     <Users />
                     <span>DJs</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/djs?tab=broadcast">
+                    <Broadcast />
+                    <span>Broadcast</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
