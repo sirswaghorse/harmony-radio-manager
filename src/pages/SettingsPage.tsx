@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -12,9 +12,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "@/components/ui/use-toast";
-import { AlertCircle, CheckCircle2, RefreshCw, Download, Server } from "lucide-react";
+import { AlertCircle, CheckCircle2, RefreshCw, Download, Server, Lock, LogOut } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const icecastSettingsSchema = z.object({
   hostname: z.string().min(1, "Hostname is required"),
@@ -56,7 +64,12 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("icecast");
   const [checkingForUpdates, setCheckingForUpdates] = useState(false);
   const [installing, setInstalling] = useState(false);
-  
+  const { logout, setNewPassword } = useAuth();
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
   const [savedIcecastSettings, setSavedIcecastSettings] = useLocalStorage<IcecastSettings>("icecast-settings", {
     hostname: "localhost",
     port: 8000,
@@ -200,7 +213,30 @@ export default function SettingsPage() {
     }
   };
 
-  // Format the last checked date in a readable format
+  const handleChangePassword = () => {
+    setPasswordError("");
+    
+    if (!newPassword) {
+      setPasswordError("Please enter a new password");
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return;
+    }
+    
+    setNewPassword(newPassword);
+    setIsChangePasswordOpen(false);
+    setNewPassword("");
+    setConfirmPassword("");
+    
+    toast({
+      title: "Password Updated",
+      description: "Your admin password has been updated successfully.",
+    });
+  };
+
   const formattedLastChecked = new Date(updateInfo.lastChecked).toLocaleString();
   const formattedInstallDate = installationStatus.lastInstallDate 
     ? new Date(installationStatus.lastInstallDate).toLocaleString() 
@@ -208,9 +244,15 @@ export default function SettingsPage() {
 
   return (
     <div className="container mx-auto py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground mt-2">Manage your server and request settings</p>
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+          <p className="text-muted-foreground mt-2">Manage your server and request settings</p>
+        </div>
+        <Button variant="outline" onClick={logout} className="gap-2">
+          <LogOut className="h-4 w-4" />
+          Logout
+        </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -219,6 +261,7 @@ export default function SettingsPage() {
           <TabsTrigger value="requests">Song Requests</TabsTrigger>
           <TabsTrigger value="install">Install Icecast</TabsTrigger>
           <TabsTrigger value="updates">Updates</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
         </TabsList>
         
         <TabsContent value="icecast" className="space-y-4">
@@ -631,7 +674,95 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="security" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Security Settings</CardTitle>
+              <CardDescription>
+                Manage application security and admin access
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-6">
+                <div className="flex flex-col gap-4">
+                  <Alert>
+                    <Lock className="h-4 w-4" />
+                    <AlertTitle>Admin Password</AlertTitle>
+                    <AlertDescription>
+                      Your admin password is required every time you access Harmony Icecast Manager. 
+                      Keep it secure and don't share it with unauthorized users.
+                    </AlertDescription>
+                  </Alert>
+
+                  <Button 
+                    onClick={() => setIsChangePasswordOpen(true)} 
+                    className="gap-2 w-full sm:w-auto"
+                  >
+                    <Lock className="h-4 w-4" />
+                    Change Admin Password
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
+      
+      <Dialog open={isChangePasswordOpen} onOpenChange={setIsChangePasswordOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Admin Password</DialogTitle>
+            <DialogDescription>
+              Enter a new password for accessing Harmony Icecast Manager.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {passwordError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{passwordError}</AlertDescription>
+            </Alert>
+          )}
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <FormLabel htmlFor="new-password" className="col-span-4">
+                New Password
+              </FormLabel>
+              <Input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+                className="col-span-4"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <FormLabel htmlFor="confirm-password" className="col-span-4">
+                Confirm Password
+              </FormLabel>
+              <Input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+                className="col-span-4"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setIsChangePasswordOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={handleChangePassword}>
+              Save Password
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

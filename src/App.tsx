@@ -3,10 +3,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import LoginPage from "./pages/LoginPage";
 import WidgetsPage from "./pages/WidgetsPage";
 import DJsPage from "./pages/DJsPage";
 import AutoDJPage from "./pages/AutoDJPage";
@@ -17,55 +19,92 @@ import QuickLinksPage from "./pages/QuickLinksPage";
 
 const queryClient = new QueryClient();
 
+// Protected route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+// Main app component with routes
+const AppRoutes = () => {
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <Index />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/widgets" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <WidgetsPage />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/djs" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <DJsPage />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/auto-dj" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <AutoDJPage />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/appearance" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <AppearancePage />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/songs" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <SongsPage />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/settings" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <SettingsPage />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/quick-links" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <QuickLinksPage />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={
-            <AppLayout>
-              <Index />
-            </AppLayout>
-          } />
-          <Route path="/widgets" element={
-            <AppLayout>
-              <WidgetsPage />
-            </AppLayout>
-          } />
-          <Route path="/djs" element={
-            <AppLayout>
-              <DJsPage />
-            </AppLayout>
-          } />
-          <Route path="/auto-dj" element={
-            <AppLayout>
-              <AutoDJPage />
-            </AppLayout>
-          } />
-          <Route path="/appearance" element={
-            <AppLayout>
-              <AppearancePage />
-            </AppLayout>
-          } />
-          <Route path="/songs" element={
-            <AppLayout>
-              <SongsPage />
-            </AppLayout>
-          } />
-          <Route path="/settings" element={
-            <AppLayout>
-              <SettingsPage />
-            </AppLayout>
-          } />
-          <Route path="/quick-links" element={
-            <AppLayout>
-              <QuickLinksPage />
-            </AppLayout>
-          } />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
