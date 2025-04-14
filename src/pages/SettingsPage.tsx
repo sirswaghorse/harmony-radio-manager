@@ -3,12 +3,13 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Info } from "lucide-react";
 import { IcecastTab } from "@/components/settings/IcecastTab";
 import { RequestsTab } from "@/components/settings/RequestsTab";
 import { InstallationTab } from "@/components/settings/InstallationTab";
 import { UpdatesTab } from "@/components/settings/UpdatesTab";
 import { SecurityTab } from "@/components/settings/SecurityTab";
+import { AboutTab } from "@/components/settings/AboutTab";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("icecast");
@@ -28,12 +29,16 @@ export default function SettingsPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
+        <TabsList className="flex flex-wrap">
           <TabsTrigger value="icecast">Icecast Server</TabsTrigger>
           <TabsTrigger value="requests">Song Requests</TabsTrigger>
           <TabsTrigger value="install">Install Icecast</TabsTrigger>
           <TabsTrigger value="updates">Updates</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
+          <TabsTrigger value="about" className="flex items-center gap-1">
+            <Info className="h-4 w-4" />
+            <span>About</span>
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="icecast" className="space-y-4">
@@ -54,6 +59,10 @@ export default function SettingsPage() {
 
         <TabsContent value="security" className="space-y-4">
           <SecurityTab />
+        </TabsContent>
+
+        <TabsContent value="about" className="space-y-4">
+          <AboutTab />
         </TabsContent>
       </Tabs>
     </div>
