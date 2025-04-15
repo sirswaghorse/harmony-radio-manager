@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Github, Coffee, Heart, Mail, Globe } from "lucide-react";
@@ -85,7 +84,7 @@ export function AboutTab() {
             </a>
           </Button>
           <Button variant="outline" size="sm" className="gap-2 text-amber-600 border-amber-600 hover:bg-amber-50 hover:text-amber-700" asChild>
-            <a href="https://ko-fi.com/example" target="_blank" rel="noopener noreferrer">
+            <a href="https://buymeacoffee.com/jonahgoodra" target="_blank" rel="noopener noreferrer">
               <Coffee className="h-4 w-4" />
               Buy me a coffee
             </a>
