@@ -35,121 +35,151 @@ const WidgetsPage = () => {
         Embed these widgets on your website to showcase your station content.
       </p>
       
-      <Tabs 
-        value={activeWidget} 
-        onValueChange={handleTabChange} 
-        className="space-y-4"
-      >
-        <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 w-full">
-          <TabsTrigger value="player">Player</TabsTrigger>
-          <TabsTrigger value="current-song">Current Song</TabsTrigger>
-          <TabsTrigger value="recent-tracks">Recent Tracks</TabsTrigger>
-          <TabsTrigger value="recent-requests">Recent Requests</TabsTrigger>
-          <TabsTrigger value="current-dj">Current DJ</TabsTrigger>
-          <TabsTrigger value="request-song">Request Song</TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-8">
+          <Tabs 
+            value={activeWidget} 
+            onValueChange={handleTabChange} 
+            className="space-y-4"
+          >
+            <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 w-full">
+              <TabsTrigger value="player">Player</TabsTrigger>
+              <TabsTrigger value="current-song">Current Song</TabsTrigger>
+              <TabsTrigger value="recent-tracks">Recent Tracks</TabsTrigger>
+              <TabsTrigger value="recent-requests">Recent Requests</TabsTrigger>
+              <TabsTrigger value="current-dj">Current DJ</TabsTrigger>
+              <TabsTrigger value="request-song">Request Song</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="player" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Player Widget</CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <div className="bg-muted p-4 rounded-md w-full max-w-lg">
+                    <PlayerWidget />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="current-song" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Current Song Widget</CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <div className="bg-muted p-4 rounded-md w-full max-w-lg">
+                    <CurrentSongWidget />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="recent-tracks" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Tracks Widget</CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <div className="bg-muted p-4 rounded-md w-full max-w-lg">
+                    <RecentTracksWidget />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="recent-requests" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Requests Widget</CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <div className="bg-muted p-4 rounded-md w-full max-w-lg">
+                    <RecentRequestsWidget />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="current-dj" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Current DJ Widget</CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <div className="bg-muted p-4 rounded-md w-full max-w-lg">
+                    <CurrentDJWidget />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="request-song" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Request Song Widget</CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <div className="bg-muted p-4 rounded-md h-[400px] overflow-y-auto w-full max-w-lg">
+                    <RequestSongWidget />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
         
-        <TabsContent value="player" className="space-y-4">
-          <Card>
+        <div className="lg:col-span-4">
+          <Card className="h-full">
             <CardHeader>
-              <CardTitle>Player Widget</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Code size={18} />
+                Embed Code
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="bg-muted p-4 rounded-md">
-                <PlayerWidget />
-              </div>
+            <CardContent className="flex-grow">
+              <Textarea 
+                value={embedCode} 
+                readOnly 
+                rows={12} 
+                className="font-mono text-sm h-full min-h-[250px]"
+              />
             </CardContent>
+            <CardFooter>
+              <Button onClick={copyToClipboard} className="ml-auto">
+                <Copy size={16} className="mr-2" />
+                Copy Code
+              </Button>
+            </CardFooter>
           </Card>
-        </TabsContent>
-        
-        <TabsContent value="current-song" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Current Song Widget</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-muted p-4 rounded-md">
-                <CurrentSongWidget />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="recent-tracks" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Tracks Widget</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-muted p-4 rounded-md">
-                <RecentTracksWidget />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="recent-requests" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Requests Widget</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-muted p-4 rounded-md">
-                <RecentRequestsWidget />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="current-dj" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Current DJ Widget</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-muted p-4 rounded-md">
-                <CurrentDJWidget />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="request-song" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Request Song Widget</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-muted p-4 rounded-md h-[400px] overflow-y-auto">
-                <RequestSongWidget />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Code size={18} />
-            Embed Code
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Textarea 
-            value={embedCode} 
-            readOnly 
-            rows={5} 
-            className="font-mono text-sm"
-          />
-        </CardContent>
-        <CardFooter>
-          <Button onClick={copyToClipboard} className="ml-auto">
-            <Copy size={16} className="mr-2" />
-            Copy Code
-          </Button>
-        </CardFooter>
-      </Card>
+          
+          <div className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Widget Options</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Add these widgets to your website by copying the embed code and pasting it into your HTML.
+                </p>
+                <div className="space-y-2">
+                  <div className="text-xs text-muted-foreground">
+                    <span className="font-medium">Width:</span> Adjust with CSS on your site
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <span className="font-medium">Height:</span> Auto-adjusts to content
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <span className="font-medium">Style:</span> Inherits your site's theme
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
