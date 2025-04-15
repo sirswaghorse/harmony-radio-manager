@@ -1,4 +1,3 @@
-
 import { useRadio } from "@/contexts/RadioContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDuration } from "@/lib/utils";
@@ -9,15 +8,96 @@ import {
   MusicIcon,
   Radio,
   UserCheck,
+  Play,
+  Square,
+  RefreshCcw
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 const Index = () => {
-  const { stats } = useRadio();
+  const { stats, toggleAutoDJ } = useRadio();
+  const [stationStatus, setStationStatus] = useState<"running" | "stopped" | "restarting">(
+    stats.autoDJActive ? "running" : "stopped"
+  );
+
+  const handleStart = () => {
+    if (stationStatus === "stopped") {
+      setStationStatus("running");
+      toggleAutoDJ();
+      toast({
+        title: "Station Started",
+        description: "The radio station is now broadcasting",
+      });
+    }
+  };
+
+  const handleStop = () => {
+    if (stationStatus === "running") {
+      setStationStatus("stopped");
+      toggleAutoDJ();
+      toast({
+        title: "Station Stopped",
+        description: "The radio station has been stopped",
+      });
+    }
+  };
+
+  const handleRestart = () => {
+    setStationStatus("restarting");
+    
+    // Simulate restart process
+    setTimeout(() => {
+      setStationStatus("running");
+      toast({
+        title: "Station Restarted",
+        description: "The radio station has been restarted successfully",
+      });
+    }, 2000);
+  };
 
   return (
     <div className="space-y-6 w-full max-w-full">
-      <h1 className="text-3xl font-bold">Station Overview</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Station Overview</h1>
+        
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleStart}
+            disabled={stationStatus === "running" || stationStatus === "restarting"}
+            className="flex gap-1"
+          >
+            <Play size={16} />
+            Start
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleStop}
+            disabled={stationStatus === "stopped" || stationStatus === "restarting"}
+            className="flex gap-1"
+          >
+            <Square size={16} />
+            Stop
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleRestart}
+            disabled={stationStatus === "restarting" || stationStatus === "stopped"}
+            className="flex gap-1"
+          >
+            <RefreshCcw size={16} className={stationStatus === "restarting" ? "animate-spin" : ""} />
+            Restart
+          </Button>
+        </div>
+      </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
