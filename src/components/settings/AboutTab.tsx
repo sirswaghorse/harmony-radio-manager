@@ -19,7 +19,7 @@ export function AboutTab() {
           <div className="w-full md:w-1/3 flex justify-center">
             <div className="rounded-lg overflow-hidden border shadow-md">
               <img 
-                src="/lovable-uploads/f9ef84a8-fe42-46cd-88c2-5ada39f3987f.png" 
+                src="/lovable-uploads/ef4d1430-b876-47fc-ad0f-1cd98982c3a1.png" 
                 alt="Jonah the Goodra" 
                 className="w-full h-auto object-cover"
               />
