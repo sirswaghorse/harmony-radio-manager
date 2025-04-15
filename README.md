@@ -1,73 +1,123 @@
-# Welcome to your Lovable project
 
-## Project info
+# Harmony Radio Manager
 
-**URL**: https://lovable.dev/projects/17f809b8-d763-4228-9aa6-417e64099210
+<div align="center">
+  <img src="public/lovable-uploads/37472379-0444-4360-b073-1882ec17e09d.png" alt="Harmony Radio Manager Dashboard" width="800"/>
+</div>
 
-## How can I edit this code?
+## 📻 About
 
-There are several ways of editing your application.
+Harmony Radio Manager is a comprehensive web application for managing your internet radio station. Built with React, TypeScript, and Tailwind CSS, it provides everything you need to run a professional online radio station, from managing DJs to scheduling playlists and embedding widgets on your website.
 
-**Use Lovable**
+## 🌟 Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/17f809b8-d763-4228-9aa6-417e64099210) and start prompting.
+### Station Overview
+Monitor your station's performance with real-time statistics including current listeners, now playing information, and daily analytics.
 
-Changes made via Lovable will be committed automatically to this repo.
+<div align="center">
+  <img src="public/lovable-uploads/16f1cd1e-957e-4dbb-9d9a-21c763dc3865.png" alt="Station Overview" width="800"/>
+</div>
 
-**Use your preferred IDE**
+### DJ Management
+Add and manage DJs, set who is currently on air, and provide connection instructions for live broadcasts.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+<div align="center">
+  <img src="public/lovable-uploads/8502af56-c41f-49e3-9dc6-180f7b6be51c.png" alt="DJ Management" width="800"/>
+</div>
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Auto DJ
+Configure automatic music playback when no DJ is broadcasting live. Manage playlists, crossfade durations, and playback settings.
 
-Follow these steps:
+<div align="center">
+  <img src="public/lovable-uploads/ced05b70-43ed-435e-bec5-162897608b8d.png" alt="Auto DJ Settings" width="800"/>
+</div>
 
+### Embeddable Widgets
+Easily embed customizable widgets on your website to showcase your station content, including:
+- Player widget
+- Current song display
+- Recent tracks list
+- Song request form
+- Current DJ information
+- Recent requests
+
+Simply copy and paste the embed code to your website.
+
+<div align="center">
+  <img src="public/lovable-uploads/37472379-0444-4360-b073-1882ec17e09d.png" alt="Widgets Page" width="800"/>
+</div>
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v16 or later)
+- npm or bun
+
+### Installation
+
+1. Clone the repository:
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+git clone https://github.com/yourusername/harmony-radio-manager.git
+cd harmony-radio-manager
 ```
 
-**Edit a file directly in GitHub**
+2. Install dependencies:
+```sh
+npm install
+# or
+bun install
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. Start the development server:
+```sh
+npm run dev
+# or
+bun run dev
+```
 
-**Use GitHub Codespaces**
+4. Open your browser and navigate to `http://localhost:5173`
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🔧 Configuration
 
-## What technologies are used for this project?
+### Connecting to your Icecast Server
 
-This project is built with:
+1. Go to the Settings page
+2. Navigate to the Icecast tab
+3. Enter your Icecast server details:
+   - Server URL
+   - Port
+   - Mount point
+   - Username
+   - Password
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Setting up DJs
 
-## How can I deploy this project?
+1. Navigate to the DJs page
+2. Click "Add DJ"
+3. Fill in the DJ information
+4. Share the connection instructions with your DJs
 
-Simply open [Lovable](https://lovable.dev/projects/17f809b8-d763-4228-9aa6-417e64099210) and click on Share -> Publish.
+## 📝 License
 
-## Can I connect a custom domain to my Lovable project?
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-Yes it is!
+## 🙏 Acknowledgements
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- Built with [React](https://reactjs.org/)
+- UI components by [shadcn/ui](https://ui.shadcn.com/)
+- Styled with [Tailwind CSS](https://tailwindcss.com/)
+- Icons from [Lucide](https://lucide.dev/)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 📊 Future Plans
+
+- Mobile application for station monitoring
+- Advanced scheduling system
+- Listener analytics dashboard
+- Integration with popular music streaming platforms
+- Social media integration for automated posts
+
+---
+
+<div align="center">
+  Made with ❤️ for internet radio broadcasters
+</div>
