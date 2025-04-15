@@ -27,8 +27,8 @@ export function AppLayout({ children }: AppLayoutProps) {
             <AppHeader onMenuToggle={handleMenuToggle} />
             <div className="flex-1 flex overflow-hidden">
               <AppSidebar />
-              <main className="flex-1 overflow-auto p-6">
-                <div className="animate-fade-in">
+              <main className="flex-1 overflow-auto p-4 sm:p-6 w-full">
+                <div className="animate-fade-in w-full">
                   {children}
                 </div>
               </main>

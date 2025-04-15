@@ -16,10 +16,10 @@ const Index = () => {
   const { stats } = useRadio();
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-6 w-full max-w-full">
       <h1 className="text-3xl font-bold">Station Overview</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -85,7 +85,7 @@ const Index = () => {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock size={16} className="text-harmony-primary" />
@@ -120,7 +120,7 @@ const Index = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BadgeCheck size={16} className="text-harmony-primary" />
