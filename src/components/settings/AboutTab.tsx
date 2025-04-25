@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Github, Coffee, Heart, Mail, Globe } from "lucide-react";
@@ -18,14 +19,14 @@ export function AboutTab() {
           <div className="w-full md:w-1/3 flex justify-center">
             <div className="rounded-lg overflow-hidden border shadow-md">
               <img 
-                src="/lovable-uploads/ef4d1430-b876-47fc-ad0f-1cd98982c3a1.png" 
-                alt="Jonah the Goodra" 
+                src="/lovable-uploads/6c4ffce6-d8d6-4ff2-a7ca-968468e4e1ed.png" 
+                alt="Jonah the Goo Boy" 
                 className="w-full h-auto object-cover"
               />
             </div>
           </div>
           <div className="w-full md:w-2/3 space-y-4">
-            <h3 className="text-2xl font-bold text-purple-600">Jonah the Goodra</h3>
+            <h3 className="text-2xl font-bold text-purple-600">Jonah the Goo Boy</h3>
             <p className="text-muted-foreground">
               Creator & Lead Developer
             </p>
