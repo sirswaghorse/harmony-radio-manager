@@ -41,7 +41,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 className="flex items-center justify-center hover:text-foreground transition-colors"
               >
                 <Github className="mr-2 h-4 w-4" />
-                Developed by Jonah the Goodra
+                Developed by Jonah the Goo Boy
               </a>
             </footer>
           </div>
