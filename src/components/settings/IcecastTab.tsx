@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -9,7 +8,9 @@ import { Switch } from "@/components/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
+import { AlertCircle, CheckCircle, Loader } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const icecastSettingsSchema = z.object({
   hostname: z.string().min(1, "Hostname is required"),
@@ -32,6 +33,9 @@ export function IcecastTab() {
     enableStats: true,
   });
 
+  const [verifying, setVerifying] = useState(false);
+  const [verificationResult, setVerificationResult] = useState<{ success: boolean; message: string } | null>(null);
+
   const icecastForm = useForm<IcecastSettings>({
     resolver: zodResolver(icecastSettingsSchema),
     defaultValues: savedIcecastSettings,
@@ -39,10 +43,42 @@ export function IcecastTab() {
 
   const onIcecastSubmit = (data: IcecastSettings) => {
     setSavedIcecastSettings(data);
-    toast({
-      title: "Icecast Settings Updated",
+    toast.success("Icecast Settings Updated", {
       description: "Your Icecast server settings have been saved.",
     });
+  };
+
+  const verifyConnection = async () => {
+    const values = icecastForm.getValues();
+    setVerifying(true);
+    setVerificationResult(null);
+    
+    try {
+      const response = await fetch(`http://${values.hostname}:${values.port}/status-json.xsl`, {
+        headers: {
+          'Authorization': 'Basic ' + btoa(`${values.username}:${values.password}`)
+        }
+      });
+
+      if (response.ok) {
+        setVerificationResult({
+          success: true,
+          message: "Successfully connected to Icecast server!"
+        });
+      } else {
+        setVerificationResult({
+          success: false,
+          message: "Could not connect to Icecast server. Please check your settings."
+        });
+      }
+    } catch (error) {
+      setVerificationResult({
+        success: false,
+        message: "Connection failed. Please verify the server address and credentials."
+      });
+    } finally {
+      setVerifying(false);
+    }
   };
 
   return (
@@ -164,7 +200,41 @@ export function IcecastTab() {
               />
             </div>
             
-            <Button type="submit" className="mt-6">Save Icecast Settings</Button>
+            <div className="flex flex-col space-y-4 mt-6">
+              <div className="flex flex-row gap-4">
+                <Button type="submit">Save Icecast Settings</Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={verifyConnection}
+                  disabled={verifying}
+                >
+                  {verifying ? (
+                    <>
+                      <Loader className="mr-2 h-4 w-4 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : (
+                    <>
+                      Verify Connection
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {verificationResult && (
+                <Alert variant={verificationResult.success ? "default" : "destructive"}>
+                  {verificationResult.success ? (
+                    <CheckCircle className="h-4 w-4" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4" />
+                  )}
+                  <AlertDescription>
+                    {verificationResult.message}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
           </form>
         </Form>
       </CardContent>
