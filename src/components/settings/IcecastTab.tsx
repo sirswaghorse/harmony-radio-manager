@@ -25,10 +25,10 @@ type IcecastSettings = z.infer<typeof icecastSettingsSchema>;
 
 export function IcecastTab() {
   const [savedIcecastSettings, setSavedIcecastSettings] = useLocalStorage<IcecastSettings>("icecast-settings", {
-    hostname: "localhost",
-    port: 8000,
+    hostname: "s7.yesstreaming.net",
+    port: 8042,
     username: "admin",
-    password: "hackme",
+    password: "Oh3SnL1FJpvc",
     mountPoint: "/stream",
     enableStats: true,
   });
@@ -54,24 +54,69 @@ export function IcecastTab() {
     setVerificationResult(null);
     
     try {
-      const response = await fetch(`http://${values.hostname}:${values.port}/status-json.xsl`, {
-        headers: {
-          'Authorization': 'Basic ' + btoa(`${values.username}:${values.password}`)
-        }
-      });
-
-      if (response.ok) {
-        setVerificationResult({
-          success: true,
-          message: "Successfully connected to Icecast server!"
+      const baseUrl = `https://${values.hostname}:${values.port}`;
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      try {
+        const response = await fetch(`${baseUrl}/status-json.xsl`, {
+          headers: {
+            'Authorization': 'Basic ' + btoa(`${values.username}:${values.password}`)
+          },
+          signal: controller.signal
         });
-      } else {
+        
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+          setVerificationResult({
+            success: true,
+            message: "Successfully connected to Icecast server!"
+          });
+          return;
+        }
+      } catch (error) {
+        clearTimeout(timeoutId);
+        console.log("HTTPS connection failed, trying HTTP");
+      }
+      
+      const httpController = new AbortController();
+      const httpTimeoutId = setTimeout(() => httpController.abort(), 10000);
+      
+      try {
+        const httpResponse = await fetch(`http://${values.hostname}:${values.port}/status-json.xsl`, {
+          headers: {
+            'Authorization': 'Basic ' + btoa(`${values.username}:${values.password}`)
+          },
+          signal: httpController.signal
+        });
+        
+        clearTimeout(httpTimeoutId);
+        
+        if (httpResponse.ok) {
+          setVerificationResult({
+            success: true,
+            message: "Successfully connected to Icecast server!"
+          });
+          return;
+        } else {
+          setVerificationResult({
+            success: false,
+            message: `Server returned error ${httpResponse.status}. Check your credentials.`
+          });
+        }
+      } catch (httpError) {
+        clearTimeout(httpTimeoutId);
+        console.error("HTTP connection error:", httpError);
+        
         setVerificationResult({
           success: false,
-          message: "Could not connect to Icecast server. Please check your settings."
+          message: "Connection failed. This may be due to CORS restrictions or the server may be unreachable. Try using a server proxy or check if the server is online."
         });
       }
     } catch (error) {
+      console.error("Connection verification error:", error);
       setVerificationResult({
         success: false,
         message: "Connection failed. Please verify the server address and credentials."

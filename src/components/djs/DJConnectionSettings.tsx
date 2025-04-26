@@ -1,13 +1,11 @@
-
-import React, { useState } from "react";
-import { useRadio } from "@/contexts/RadioContext";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { toast } from "sonner";
-import { Mic, Headphones, Wifi, EthernetPort } from "lucide-react";
+import { Mic, Headphones, Wifi } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -25,23 +23,40 @@ const connectionSchema = z.object({
 type ConnectionSettings = z.infer<typeof connectionSchema>;
 
 export function DJConnectionSettings() {
+  const [icecastSettings] = useLocalStorage("icecast-settings", {
+    hostname: "s7.yesstreaming.net",
+    port: 8042,
+    username: "admin", 
+    password: "Oh3SnL1FJpvc",
+    mountPoint: "/stream",
+    enableStats: true,
+  });
+  
   const [savedSettings, setSavedSettings] = useLocalStorage<ConnectionSettings>(
     "dj-connection-settings",
     {
-      serverUrl: "stream.yourstation.com",
-      port: 8000,
-      mountpoint: "/live",
+      serverUrl: icecastSettings.hostname || "stream.yourstation.com",
+      port: icecastSettings.port || 8000,
+      mountpoint: icecastSettings.mountPoint || "/live",
       username: "source",
       password: "",
       encodingBitrate: 128,
       encodingFormat: "mp3",
     }
   );
-
+  
   const form = useForm<ConnectionSettings>({
     resolver: zodResolver(connectionSchema),
     defaultValues: savedSettings,
   });
+  
+  useEffect(() => {
+    if (icecastSettings) {
+      form.setValue("serverUrl", icecastSettings.hostname);
+      form.setValue("port", icecastSettings.port);
+      form.setValue("mountpoint", icecastSettings.mountPoint);
+    }
+  }, [icecastSettings, form]);
 
   const onSubmit = (data: ConnectionSettings) => {
     setSavedSettings(data);
