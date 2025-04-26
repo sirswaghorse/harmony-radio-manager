@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -5,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { toast } from "sonner";
-import { Mic, Headphones, Wifi } from "lucide-react";
+import { Mic, Copy } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -52,7 +53,10 @@ export function DJConnectionSettings() {
   
   useEffect(() => {
     if (icecastSettings) {
-      form.setValue("serverUrl", icecastSettings.hostname);
+      // Remove any http:// or https:// prefixes from hostname for consistency
+      const cleanHostname = icecastSettings.hostname.replace(/^(https?:\/\/)+/i, '');
+      
+      form.setValue("serverUrl", cleanHostname);
       form.setValue("port", icecastSettings.port);
       form.setValue("mountpoint", icecastSettings.mountPoint);
     }
@@ -63,6 +67,24 @@ export function DJConnectionSettings() {
     toast.success("Connection settings saved", {
       description: "Your DJ connection settings have been updated.",
     });
+  };
+
+  const copyConnectionDetails = () => {
+    const values = form.getValues();
+    const details = `Server: ${values.serverUrl}\nPort: ${values.port}\nMountpoint: ${values.mountpoint}\nUsername: ${values.username}\nPassword: ${values.password}\nEncoding: ${values.encodingFormat} at ${values.encodingBitrate}kbps`;
+    
+    navigator.clipboard.writeText(details)
+      .then(() => {
+        toast.success("Copied to clipboard", {
+          description: "Connection details have been copied to your clipboard."
+        });
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+        toast.error("Failed to copy", {
+          description: "Could not copy to clipboard. Please try again."
+        });
+      });
   };
 
   return (
@@ -89,7 +111,7 @@ export function DJConnectionSettings() {
                       <Input placeholder="stream.yourstation.com" {...field} />
                     </FormControl>
                     <FormDescription>
-                      The URL of your Icecast server
+                      The URL of your Icecast server (without http:// or https://)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -206,8 +228,17 @@ export function DJConnectionSettings() {
               />
             </div>
             
-            <div className="pt-4">
-              <Button type="submit" className="mr-2">Save Connection Settings</Button>
+            <div className="pt-4 flex flex-row gap-4">
+              <Button type="submit">Save Connection Settings</Button>
+              <Button 
+                type="button" 
+                variant="secondary"
+                onClick={copyConnectionDetails}
+                className="flex items-center gap-2"
+              >
+                <Copy className="h-4 w-4" />
+                Copy Connection Details
+              </Button>
             </div>
           </form>
         </Form>

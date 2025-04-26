@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,13 +55,18 @@ export function IcecastTab() {
     setVerificationResult(null);
     
     try {
-      const baseUrl = `https://${values.hostname}:${values.port}`;
+      // Fixed URL formation - remove any accidental double http:// or https://
+      const cleanHostname = values.hostname.replace(/^(https?:\/\/)+/i, '');
       
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      // Try HTTPS first
+      const httpsUrl = `https://${cleanHostname}:${values.port}/status-json.xsl`;
+      console.log(`Attempting HTTPS connection to: ${httpsUrl}`);
       
       try {
-        const response = await fetch(`${baseUrl}/status-json.xsl`, {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
+        const response = await fetch(httpsUrl, {
           headers: {
             'Authorization': 'Basic ' + btoa(`${values.username}:${values.password}`)
           },
@@ -72,51 +78,70 @@ export function IcecastTab() {
         if (response.ok) {
           setVerificationResult({
             success: true,
-            message: "Successfully connected to Icecast server!"
+            message: "Successfully connected to Icecast server via HTTPS!"
           });
+          setVerifying(false);
           return;
+        } else {
+          console.log(`HTTPS connection failed with status: ${response.status}`);
         }
       } catch (error) {
-        clearTimeout(timeoutId);
         console.log("HTTPS connection failed, trying HTTP");
       }
       
-      const httpController = new AbortController();
-      const httpTimeoutId = setTimeout(() => httpController.abort(), 10000);
+      // Try HTTP as fallback
+      const httpUrl = `http://${cleanHostname}:${values.port}/status-json.xsl`;
+      console.log(`Attempting HTTP connection to: ${httpUrl}`);
       
       try {
-        const httpResponse = await fetch(`http://${values.hostname}:${values.port}/status-json.xsl`, {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
+        const response = await fetch(httpUrl, {
           headers: {
             'Authorization': 'Basic ' + btoa(`${values.username}:${values.password}`)
           },
-          signal: httpController.signal
+          signal: controller.signal
         });
         
-        clearTimeout(httpTimeoutId);
+        clearTimeout(timeoutId);
         
-        if (httpResponse.ok) {
+        if (response.ok) {
           setVerificationResult({
             success: true,
-            message: "Successfully connected to Icecast server!"
+            message: "Successfully connected to Icecast server via HTTP!"
           });
+          setVerifying(false);
           return;
         } else {
           setVerificationResult({
             success: false,
-            message: `Server returned error ${httpResponse.status}. Check your credentials.`
+            message: `Server returned error ${response.status}. Check your credentials.`
           });
         }
-      } catch (httpError) {
-        clearTimeout(httpTimeoutId);
-        console.error("HTTP connection error:", httpError);
+      } catch (error) {
+        console.error("HTTP connection error:", error);
         
-        setVerificationResult({
-          success: false,
-          message: "Connection failed. This may be due to CORS restrictions or the server may be unreachable. Try using a server proxy or check if the server is online."
-        });
+        // Check for more specific error types
+        if (error instanceof TypeError && error.message.includes("NetworkError")) {
+          setVerificationResult({
+            success: false,
+            message: "Connection failed due to network restrictions. This is often caused by CORS policies which prevent browser connections to your server. Consider using a proxy or checking your server configuration."
+          });
+        } else if (error.name === 'AbortError') {
+          setVerificationResult({
+            success: false,
+            message: "Connection timed out. The server may be unreachable or slow to respond."
+          });
+        } else {
+          setVerificationResult({
+            success: false,
+            message: "Connection failed. This may be due to CORS restrictions, the server being unreachable, or incorrect settings."
+          });
+        }
       }
     } catch (error) {
-      console.error("Connection verification error:", error);
+      console.error("Connection verification general error:", error);
       setVerificationResult({
         success: false,
         message: "Connection failed. Please verify the server address and credentials."
@@ -148,7 +173,7 @@ export function IcecastTab() {
                       <Input placeholder="localhost" {...field} />
                     </FormControl>
                     <FormDescription>
-                      The hostname or IP address of your Icecast server
+                      The hostname or IP address of your Icecast server (without http:// or https://)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
