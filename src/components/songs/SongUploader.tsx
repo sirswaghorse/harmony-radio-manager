@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import { useLocalStorage } from "@/hooks/use-local-storage";
 
 export function SongUploader() {
   const [uploading, setUploading] = useState(false);
+  const [isProduction, setIsProduction] = useState(false);
   const [icecastSettings] = useLocalStorage("icecast-settings", {
     hostname: "",
     port: 8000,
@@ -15,6 +16,14 @@ export function SongUploader() {
     password: "",
     mountPoint: "",
   });
+  
+  // Check if we're in a production environment (like Netlify)
+  useEffect(() => {
+    // This helps detect if we're in Netlify or other production deployment
+    const isProductionEnv = window.location.hostname !== 'localhost' && 
+                           !window.location.hostname.includes('.lovableproject.com');
+    setIsProduction(isProductionEnv);
+  }, []);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -28,6 +37,18 @@ export function SongUploader() {
       // Validate file type
       if (!file.type.startsWith('audio/')) {
         toast.error("Please select an audio file");
+        setUploading(false);
+        event.target.value = '';
+        return;
+      }
+
+      // Check if Icecast settings are configured
+      if (!icecastSettings.hostname) {
+        toast.error("Icecast server not configured", {
+          description: "Please configure your Icecast server in Settings"
+        });
+        setUploading(false);
+        event.target.value = '';
         return;
       }
 
@@ -41,21 +62,33 @@ export function SongUploader() {
       // Construct the upload URL
       const uploadUrl = `http://${cleanHostname}:${icecastSettings.port}/admin/uploadfile`;
       
-      // Attempt upload
-      const response = await fetch(uploadUrl, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Authorization': 'Basic ' + btoa(`${icecastSettings.username}:${icecastSettings.password}`)
-        }
-      });
-
-      if (response.ok) {
-        toast.success("Song uploaded successfully", {
-          description: file.name
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      
+      try {
+        // Attempt upload
+        const response = await fetch(uploadUrl, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Authorization': 'Basic ' + btoa(`${icecastSettings.username}:${icecastSettings.password}`)
+          },
+          signal: controller.signal
         });
-      } else {
-        throw new Error(`Upload failed with status: ${response.status}`);
+  
+        clearTimeout(timeoutId);
+  
+        if (response.ok) {
+          toast.success("Song uploaded successfully", {
+            description: file.name
+          });
+        } else {
+          throw new Error(`Upload failed with status: ${response.status}`);
+        }
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        throw fetchError;
       }
     } catch (error) {
       console.error('Upload error:', error);
