@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useRadio } from "@/contexts/RadioContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +22,7 @@ import {
   Search, 
   Upload 
 } from "lucide-react";
+import { SongUploader } from "@/components/songs/SongUploader";
 
 const SongsPage = () => {
   const { songs, requestSong } = useRadio();
@@ -50,10 +50,7 @@ const SongsPage = () => {
       <div className="flex justify-between items-center flex-wrap gap-4">
         <h1 className="text-3xl font-bold">Songs Library</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleUpload}>
-            <Upload size={16} className="mr-2" />
-            Upload Songs
-          </Button>
+          <SongUploader />
           <Button>
             <Plus size={16} className="mr-2" />
             Add Song
