@@ -15,6 +15,8 @@ export function SongUploader() {
     username: "",
     password: "",
     mountPoint: "",
+    useHttps: false,
+    connectionType: "direct",
   });
   
   // Check if we're in a production environment (like Netlify)
@@ -59,21 +61,31 @@ export function SongUploader() {
       // Clean hostname (remove any http/https prefix)
       const cleanHostname = icecastSettings.hostname.replace(/^(https?:\/\/)+/i, '');
       
+      // Determine protocol
+      const protocol = icecastSettings.useHttps ? 'https://' : 'http://';
+      
       // Construct the upload URL
-      const uploadUrl = `http://${cleanHostname}:${icecastSettings.port}/admin/uploadfile`;
+      let uploadUrl = `${protocol}${cleanHostname}:${icecastSettings.port}/admin/uploadfile`;
+      
+      // If using CORS proxy
+      if (icecastSettings.connectionType === "cors-proxy") {
+        uploadUrl = `/api/icecast-proxy?url=${encodeURIComponent(uploadUrl)}&method=POST`;
+      }
+      
+      console.log(`Attempting upload to: ${uploadUrl}`);
       
       // Add timeout to prevent hanging requests
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
       try {
         // Attempt upload
         const response = await fetch(uploadUrl, {
           method: 'POST',
           body: formData,
-          headers: {
+          headers: icecastSettings.connectionType === "direct" ? {
             'Authorization': 'Basic ' + btoa(`${icecastSettings.username}:${icecastSettings.password}`)
-          },
+          } : {},
           signal: controller.signal
         });
   
@@ -86,9 +98,22 @@ export function SongUploader() {
         } else {
           throw new Error(`Upload failed with status: ${response.status}`);
         }
-      } catch (fetchError) {
+      } catch (fetchError: any) {
         clearTimeout(timeoutId);
-        throw fetchError;
+        
+        console.error("Upload fetch error:", fetchError);
+        
+        if (fetchError instanceof TypeError && fetchError.message.includes("NetworkError")) {
+          toast.error("Upload failed due to network restrictions", {
+            description: "This might be due to CORS policy. Try using the CORS Proxy option in Settings > Icecast Server > Advanced Options"
+          });
+        } else if (fetchError.name === 'AbortError') {
+          toast.error("Upload timed out", {
+            description: "The server took too long to respond. Check your connection and server status."
+          });
+        } else {
+          throw fetchError;
+        }
       }
     } catch (error) {
       console.error('Upload error:', error);
