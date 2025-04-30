@@ -29,6 +29,7 @@ export function DJConnectionSettings() {
     port: 8042,
     username: "admin", 
     password: "Oh3SnL1FJpvc",
+    sourcePassword: "hackme",
     mountPoint: "/stream",
     enableStats: true,
   });
@@ -40,7 +41,7 @@ export function DJConnectionSettings() {
       port: icecastSettings.port || 8000,
       mountpoint: icecastSettings.mountPoint || "/live",
       username: "source",
-      password: "",
+      password: icecastSettings.sourcePassword || "",
       encodingBitrate: 128,
       encodingFormat: "mp3",
     }
@@ -59,6 +60,7 @@ export function DJConnectionSettings() {
       form.setValue("serverUrl", cleanHostname);
       form.setValue("port", icecastSettings.port);
       form.setValue("mountpoint", icecastSettings.mountPoint);
+      form.setValue("password", icecastSettings.sourcePassword || "");
     }
   }, [icecastSettings, form]);
 

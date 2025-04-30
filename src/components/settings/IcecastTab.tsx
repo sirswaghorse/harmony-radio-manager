@@ -20,6 +20,7 @@ const icecastSettingsSchema = z.object({
   port: z.coerce.number().int().min(0).max(65535),
   username: z.string().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
+  sourcePassword: z.string().min(1, "Source password is required"),
   mountPoint: z.string().min(1, "Mount point is required"),
   enableStats: z.boolean().default(true),
   connectionType: z.enum(["direct", "cors-proxy"]).default("direct"),
@@ -34,6 +35,7 @@ export function IcecastTab() {
     port: 8042,
     username: "admin",
     password: "Oh3SnL1FJpvc",
+    sourcePassword: "hackme", // Default source password
     mountPoint: "/stream",
     enableStats: true,
     connectionType: "direct",
@@ -233,6 +235,23 @@ export function IcecastTab() {
                         </FormControl>
                         <FormDescription>
                           The admin password for your Icecast server
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={icecastForm.control}
+                    name="sourcePassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Source Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          The source client password for uploading songs and broadcasting
                         </FormDescription>
                         <FormMessage />
                       </FormItem>

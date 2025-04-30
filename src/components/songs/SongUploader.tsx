@@ -15,6 +15,7 @@ export function SongUploader() {
     port: 8000,
     username: "",
     password: "",
+    sourcePassword: "",
     mountPoint: "",
     useHttps: false,
     connectionType: "direct",
@@ -107,11 +108,17 @@ export function SongUploader() {
         // Attempt upload regardless of test result
         addDebugInfo(`Starting upload of ${file.name}...`);
         
+        // Check which password to use - admin password for admin functions, source password for source functions
+        const authPassword = uploadUrl.includes('/admin/') ? icecastSettings.password : icecastSettings.sourcePassword;
+        const authUsername = uploadUrl.includes('/admin/') ? icecastSettings.username : 'source';
+        
+        addDebugInfo(`Using authentication: ${authUsername}:******* for ${uploadUrl.includes('/admin/') ? 'admin' : 'source'} operation`);
+        
         const response = await fetch(uploadUrl, {
           method: 'POST',
           body: formData,
           headers: icecastSettings.connectionType === "direct" ? {
-            'Authorization': 'Basic ' + btoa(`${icecastSettings.username}:${icecastSettings.password}`)
+            'Authorization': 'Basic ' + btoa(`${authUsername}:${authPassword}`)
           } : {},
           signal: controller.signal
         });
