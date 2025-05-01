@@ -19,6 +19,8 @@ export function SongUploader() {
     mountPoint: "",
     useHttps: false,
     connectionType: "direct",
+    useDirectUrl: false,
+    directUrl: "",
   });
   
   // Check if we're in a production environment (like Netlify)
@@ -38,7 +40,15 @@ export function SongUploader() {
 
     try {
       const file = files[0];
-      addDebugInfo(`Selected file: ${file.name} (${file.type}), size: ${(file.size / 1024).toFixed(2)} KB`);
+      addDebugInfo(`Selected file: ${file.name} (${file.type}), size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+      
+      // Check file size - warn if over 10MB as this may cause 413 errors
+      if (file.size > 10 * 1024 * 1024) {
+        addDebugInfo(`Warning: File size (${(file.size / 1024 / 1024).toFixed(2)} MB) exceeds 10MB, which may cause upload issues`);
+        toast.warning(`Large file detected (${(file.size / 1024 / 1024).toFixed(2)} MB)`, {
+          description: "Your file exceeds 10MB which may be rejected by some Icecast servers. Consider reducing the file size."
+        });
+      }
       
       // Validate file type
       if (!file.type.startsWith('audio/')) {
@@ -50,7 +60,7 @@ export function SongUploader() {
       }
 
       // Check if Icecast settings are configured
-      if (!icecastSettings.hostname) {
+      if (!icecastSettings.hostname && !icecastSettings.useDirectUrl) {
         toast.error("Icecast server not configured", {
           description: "Please configure your Icecast server in Settings"
         });
@@ -63,15 +73,28 @@ export function SongUploader() {
       // Create form data
       const formData = new FormData();
       formData.append('file', file);
-
-      // Clean hostname (remove any http/https prefix)
-      const cleanHostname = icecastSettings.hostname.replace(/^(https?:\/\/)+/i, '');
       
-      // Determine protocol
-      const protocol = icecastSettings.useHttps ? 'https://' : 'http://';
+      let uploadUrl;
       
-      // Construct the upload URL
-      let uploadUrl = `${protocol}${cleanHostname}:${icecastSettings.port}/admin/uploadfile`;
+      // Determine the upload URL based on direct URL or components
+      if (icecastSettings.useDirectUrl && icecastSettings.directUrl) {
+        // Use the direct URL and ensure it ends with a slash for the admin path
+        const baseUrl = icecastSettings.directUrl.endsWith('/') 
+          ? icecastSettings.directUrl.slice(0, -1) 
+          : icecastSettings.directUrl;
+        
+        uploadUrl = `${baseUrl}/admin/uploadfile`;
+        addDebugInfo(`Using direct URL: ${uploadUrl}`);
+      } else {
+        // Clean hostname (remove any http/https prefix)
+        const cleanHostname = icecastSettings.hostname.replace(/^(https?:\/\/)+/i, '');
+        
+        // Determine protocol
+        const protocol = icecastSettings.useHttps ? 'https://' : 'http://';
+        
+        // Construct the upload URL
+        uploadUrl = `${protocol}${cleanHostname}:${icecastSettings.port}/admin/uploadfile`;
+      }
       
       // If using CORS proxy
       if (icecastSettings.connectionType === "cors-proxy") {
@@ -82,30 +105,13 @@ export function SongUploader() {
       }
       
       console.log(`Attempting upload to: ${uploadUrl}`);
-      addDebugInfo(`Attempting connection to Icecast server at ${protocol}${cleanHostname}:${icecastSettings.port}`);
       
       // Add timeout to prevent hanging requests
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for large files
       
       try {
-        // First, try a lightweight connection test
-        const testResponse = await fetch(`${protocol}${cleanHostname}:${icecastSettings.port}/status-json.xsl`, {
-          method: 'HEAD',
-          headers: {
-            'Authorization': 'Basic ' + btoa(`${icecastSettings.username}:${icecastSettings.password}`)
-          },
-          signal: AbortSignal.timeout(5000) // 5 second timeout for HEAD request
-        }).catch(e => {
-          addDebugInfo(`Connection test failed: ${e.message}`);
-          return null;
-        });
-        
-        if (testResponse) {
-          addDebugInfo(`Connection test response status: ${testResponse.status}`);
-        }
-        
-        // Attempt upload regardless of test result
+        // Attempt upload
         addDebugInfo(`Starting upload of ${file.name}...`);
         
         // Check which password to use - admin password for admin functions, source password for source functions
@@ -131,6 +137,8 @@ export function SongUploader() {
             description: file.name
           });
           addDebugInfo("Upload successful");
+        } else if (response.status === 413) {
+          throw new Error("File too large (HTTP 413). Your Icecast server has rejected this file due to its size. Try a smaller file or adjust server settings.");
         } else {
           const responseText = await response.text().catch(() => "Could not get response text");
           addDebugInfo(`Server response: ${responseText.substring(0, 100)}${responseText.length > 100 ? '...' : ''}`);
@@ -142,7 +150,20 @@ export function SongUploader() {
         console.error("Upload fetch error:", fetchError);
         addDebugInfo(`Fetch error: ${fetchError.name} - ${fetchError.message}`);
         
-        if (fetchError instanceof TypeError && fetchError.message.includes("NetworkError")) {
+        if (fetchError.message && fetchError.message.includes("413")) {
+          toast.error("File size too large", {
+            description: "The server rejected this file because it's too large. Try a smaller file or adjust your Icecast server's file size limit.",
+            action: {
+              label: "Show Details",
+              onClick: () => {
+                toast.message("Debug Information", {
+                  description: debug.join("\n")
+                });
+              }
+            }
+          });
+          addDebugInfo("413 error - file too large for server");
+        } else if (fetchError instanceof TypeError && fetchError.message.includes("NetworkError")) {
           toast.error("Upload failed due to network restrictions", {
             description: "This might be due to CORS policy. Try using the CORS Proxy option in Settings > Icecast Server > Advanced Options",
             action: {
@@ -157,24 +178,9 @@ export function SongUploader() {
           
           addDebugInfo("Network error detected - likely CORS related");
           
-          // Try to detect if browser blocked the request due to CORS
-          const corsTest = await fetch("/api/cors-test", { 
-            method: "POST",
-            body: JSON.stringify({ url: uploadUrl }),
-            headers: { "Content-Type": "application/json" }
-          }).catch(e => {
-            addDebugInfo(`CORS test failed: ${e.message}`);
-            return null;
-          });
-          
-          if (corsTest) {
-            const corsData = await corsTest.json().catch(() => ({}));
-            addDebugInfo(`CORS test result: ${JSON.stringify(corsData)}`);
-          }
-          
         } else if (fetchError.name === 'AbortError') {
           toast.error("Upload timed out", {
-            description: "The server took too long to respond. Check your connection and server status.",
+            description: "The server took too long to respond. This can happen with large files. Try a smaller file or check your connection.",
             action: {
               label: "Show Details",
               onClick: () => {
