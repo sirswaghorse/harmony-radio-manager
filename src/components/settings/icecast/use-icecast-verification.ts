@@ -13,14 +13,23 @@ export function useIcecastVerification() {
     setVerificationResult(null);
     
     try {
-      // Fixed URL formation - remove any accidental double http:// or https://
-      const cleanHostname = values.hostname.replace(/^(https?:\/\/)+/i, '');
+      let url: string;
       
-      // Determine which protocol to use
-      const protocol = values.useHttps ? 'https://' : 'http://';
-      
-      // For direct connection
-      let url = `${protocol}${cleanHostname}:${values.port}/status-json.xsl`;
+      if (values.useDirectUrl && values.directUrl) {
+        // Use the direct URL and ensure it ends with a slash
+        url = values.directUrl.endsWith('/') 
+          ? `${values.directUrl}status-json.xsl`
+          : `${values.directUrl}/status-json.xsl`;
+      } else {
+        // Fixed URL formation - remove any accidental double http:// or https://
+        const cleanHostname = values.hostname.replace(/^(https?:\/\/)+/i, '');
+        
+        // Determine which protocol to use
+        const protocol = values.useHttps ? 'https://' : 'http://';
+        
+        // Construct URL from individual components
+        url = `${protocol}${cleanHostname}:${values.port}/status-json.xsl`;
+      }
       
       // If using CORS proxy
       if (values.connectionType === "cors-proxy") {
@@ -49,7 +58,7 @@ export function useIcecastVerification() {
             if (data?.icestats) {
               setVerificationResult({
                 success: true,
-                message: `Successfully connected to Icecast server via ${values.useHttps ? 'HTTPS' : 'HTTP'}!`
+                message: `Successfully connected to Icecast server!`
               });
             } else {
               throw new Error("Response is not a valid Icecast status");

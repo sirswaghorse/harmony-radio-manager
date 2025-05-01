@@ -12,13 +12,13 @@ export function VerificationResultDisplay({ result }: VerificationResultProps) {
   if (!result) return null;
 
   return (
-    <Alert variant={result.success ? "default" : "destructive"}>
+    <Alert variant={result.success ? "default" : "destructive"} className="mt-4">
       {result.success ? (
         <CheckCircle className="h-4 w-4" />
       ) : (
         <AlertCircle className="h-4 w-4" />
       )}
-      <AlertDescription>
+      <AlertDescription className="ml-2">
         {result.message}
       </AlertDescription>
     </Alert>

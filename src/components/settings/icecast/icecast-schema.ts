@@ -11,6 +11,8 @@ export const icecastSettingsSchema = z.object({
   enableStats: z.boolean().default(true),
   connectionType: z.enum(["direct", "cors-proxy"]).default("direct"),
   useHttps: z.boolean().default(false),
+  useDirectUrl: z.boolean().default(false),
+  directUrl: z.string().optional(),
 });
 
 export type IcecastSettings = z.infer<typeof icecastSettingsSchema>;
@@ -25,4 +27,6 @@ export const defaultIcecastSettings: IcecastSettings = {
   enableStats: true,
   connectionType: "direct",
   useHttps: false,
+  useDirectUrl: false,
+  directUrl: "",
 };
